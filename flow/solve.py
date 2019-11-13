@@ -128,7 +128,7 @@ def main():
     print(f'Usage: python {sys.argv[0]} <input_file_path')
     quit()
   start_state = read_from_file(sys.argv[1])
-  sol = solve(start_state)
+  sol = solve_bt(start_state)
   print('Solution:')
   sol.print()
 
@@ -161,6 +161,37 @@ def solve(start_state: State) -> State:
       ns = cur.step_all()
       nos += len(ns)
       stack.extend(ns)
+
+
+def solve_bt(start_state: State) -> State:
+  cells = deepcopy(start_state.cells)
+  av_colors = list(map(str.lower, start_state.colors_start_pos.keys()))
+
+  def incr(pos: tuple) -> tuple:
+    i, j = pos
+    j += 1
+    if j >= len(cells[0]):
+      i += 1
+      j = 0
+    return (i, j)
+
+  def is_safe_up_to(pos: tuple):
+    return True
+
+  def util(pos: tuple):
+    i, j = pos
+    if i >= len(cells):
+      return
+    while cells[i][j].isupper():
+      i, j = incr((i, j))
+
+    for color in av_colors:
+      cells[i][j] = color
+      if is_safe_up_to(pos):
+        if (i >= len(cells) - 1 and j >= len(cells[0]) - 1) or util(incr(pos)):
+            return State(cells)
+  
+  return util((0,0))
   
 
 if __name__ == '__main__':
